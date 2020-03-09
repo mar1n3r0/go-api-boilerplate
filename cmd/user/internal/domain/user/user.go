@@ -62,38 +62,14 @@ func FromHistory(events []domain.Event) User {
 			}
 
 			e = wasRegisteredWithEmail
-		case (WasRegisteredWithFacebook{}).GetType():
-			wasRegisteredWithFacebook := WasRegisteredWithFacebook{}
-			err := unmarshalPayload(domainEvent.Payload, &wasRegisteredWithFacebook)
+		case (WasAuthenticatedWithProvider{}).GetType():
+			wasAuthenticatedWithProvider := WasAuthenticatedWithProvider{}
+			err := unmarshalPayload(domainEvent.Payload, &wasAuthenticatedWithProvider)
 			if err != nil {
 				log.Panicf("Error while trying to unmarshal user event %s. %s\n", domainEvent.Metadata.Type, err)
 			}
 
-			e = wasRegisteredWithFacebook
-		case (ConnectedWithFacebook{}).GetType():
-			connectedWithFacebook := ConnectedWithFacebook{}
-			err := unmarshalPayload(domainEvent.Payload, &connectedWithFacebook)
-			if err != nil {
-				log.Panicf("Error while trying to unmarshal user event %s. %s\n", domainEvent.Metadata.Type, err)
-			}
-
-			e = connectedWithFacebook
-		case (WasRegisteredWithGoogle{}).GetType():
-			wasRegisteredWithGoogle := WasRegisteredWithGoogle{}
-			err := unmarshalPayload(domainEvent.Payload, &wasRegisteredWithGoogle)
-			if err != nil {
-				log.Panicf("Error while trying to unmarshal user event %s. %s\n", domainEvent.Metadata.Type, err)
-			}
-
-			e = wasRegisteredWithGoogle
-		case (ConnectedWithGoogle{}).GetType():
-			connectedWithGoogle := ConnectedWithGoogle{}
-			err := unmarshalPayload(domainEvent.Payload, &connectedWithGoogle)
-			if err != nil {
-				log.Panicf("Error while trying to unmarshal user event %s. %s\n", domainEvent.Metadata.Type, err)
-			}
-
-			e = connectedWithGoogle
+			e = wasAuthenticatedWithProvider
 		default:
 			log.Panicf("Unhandled user event %s\n", domainEvent.Metadata.Type)
 		}
@@ -121,44 +97,27 @@ func (u User) Changes() []domain.Event {
 }
 
 // RegisterWithEmail alters current user state and append changes to aggregate root
-func (u *User) RegisterWithEmail(id uuid.UUID, email string) error {
+func (u *User) RegisterWithEmail(id uuid.UUID, name, email string) error {
 	return u.trackChange(WasRegisteredWithEmail{
 		ID:    id,
+		Name:  name,
 		Email: email,
 	})
 }
 
-// RegisterWithGoogle alters current user state and append changes to aggregate root
-func (u *User) RegisterWithGoogle(id uuid.UUID, email, googleID string) error {
-	return u.trackChange(WasRegisteredWithGoogle{
-		ID:       id,
-		Email:    email,
-		GoogleID: googleID,
-	})
-}
-
-// ConnectWithGoogle alters current user state and append changes to aggregate root
-func (u *User) ConnectWithGoogle(googleID string) error {
-	return u.trackChange(ConnectedWithGoogle{
-		ID:       u.id,
-		GoogleID: googleID,
-	})
-}
-
-// RegisterWithFacebook alters current user state and append changes to aggregate root
-func (u *User) RegisterWithFacebook(id uuid.UUID, email, facebookID string) error {
-	return u.trackChange(WasRegisteredWithFacebook{
-		ID:         id,
-		Email:      email,
-		FacebookID: facebookID,
-	})
-}
-
-// ConnectWithFacebook alters current user state and append changes to aggregate root
-func (u *User) ConnectWithFacebook(facebookID string) error {
-	return u.trackChange(ConnectedWithFacebook{
-		ID:         u.id,
-		FacebookID: facebookID,
+// RegisterWithProvider alters current user state and append changes to aggregate root
+func (u *User) RegisterWithProvider(id uuid.UUID, provider, name, email, nickname, location, avatarURL, description, userid, refreshToken string) error {
+	return u.trackChange(WasAuthenticatedWithProvider{
+		ID:           id,
+		Provider:     provider,
+		Name:         name,
+		Email:        email,
+		NickName:     nickname,
+		Location:     location,
+		AvatarURL:    avatarURL,
+		Description:  description,
+		UserID:       userid,
+		RefreshToken: refreshToken,
 	})
 }
 
@@ -196,10 +155,7 @@ func (u *User) transition(e domain.RawEvent) {
 	case WasRegisteredWithEmail:
 		u.id = e.ID
 		u.email = e.Email
-	case WasRegisteredWithGoogle:
-		u.id = e.ID
-		u.email = e.Email
-	case WasRegisteredWithFacebook:
+	case WasAuthenticatedWithProvider:
 		u.id = e.ID
 		u.email = e.Email
 	case EmailAddressWasChanged:

@@ -3,11 +3,13 @@ package user
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"runtime/debug"
 
 	"github.com/google/uuid"
+	"github.com/thedevsaddam/govalidator"
 
 	"github.com/vardius/go-api-boilerplate/internal/commandbus"
 	"github.com/vardius/go-api-boilerplate/internal/domain"
@@ -22,10 +24,8 @@ const (
 	ChangeUserEmailAddress = "change-user-email-address"
 	// RegisterUserWithEmail command bus contract
 	RegisterUserWithEmail = "register-user-with-email"
-	// RegisterUserWithFacebook command bus contract
-	RegisterUserWithFacebook = "register-user-with-facebook"
-	// RegisterUserWithGoogle command bus contract
-	RegisterUserWithGoogle = "register-user-with-google"
+	// RegisterUserWithProvider command bus contract
+	RegisterUserWithProvider = "register-user-with-provider"
 )
 
 // NewCommandFromPayload builds command by contract from json payload
@@ -34,18 +34,30 @@ func NewCommandFromPayload(contract string, payload []byte) (domain.Command, err
 	case RegisterUserWithEmail:
 		registerWithEmail := RegisterWithEmail{}
 		err := unmarshalPayload(payload, &registerWithEmail)
+		// validation rules
+		rules := govalidator.MapData{
+			"name":  []string{"required", "min:8", "max:32", "alpha_space"},
+			"email": []string{"required", "min:8", "max:32", "email"},
+		}
+
+		opts := govalidator.Options{
+			Data:  &registerWithEmail,
+			Rules: rules,
+		}
+
+		v := govalidator.New(opts)
+		e := v.ValidateStruct()
+		if len(e) > 0 {
+			data, _ := json.MarshalIndent(e, "", "  ")
+			return nil, errors.New(errors.INVALID, string(data))
+		}
 
 		return registerWithEmail, err
-	case RegisterUserWithGoogle:
-		registerWithGoogle := RegisterWithGoogle{}
-		err := unmarshalPayload(payload, &registerWithGoogle)
+	case RegisterUserWithProvider:
+		registerWithProvider := RegisterWithProvider{}
+		err := unmarshalPayload(payload, &registerWithProvider)
 
-		return registerWithGoogle, err
-	case RegisterUserWithFacebook:
-		registerWithFacebook := RegisterWithFacebook{}
-		err := unmarshalPayload(payload, &registerWithFacebook)
-
-		return registerWithFacebook, err
+		return registerWithProvider, err
 	case ChangeUserEmailAddress:
 		changeEmailAddress := ChangeEmailAddress{}
 		err := unmarshalPayload(payload, &changeEmailAddress)
@@ -63,7 +75,8 @@ func NewCommandFromPayload(contract string, payload []byte) (domain.Command, err
 
 // RequestAccessToken command
 type RequestAccessToken struct {
-	ID uuid.UUID `json:"id"`
+	ID    uuid.UUID `json:"id"`
+	Email string    `json:"email"`
 }
 
 // GetName returns command name
@@ -78,8 +91,17 @@ func OnRequestAccessToken(repository Repository, db *sql.DB) commandbus.CommandH
 		// therefor recover middlewears will not recover from panic to prevent crash
 		defer recoverCommandHandler(out)
 
-		u := repository.Get(c.ID)
-		err := u.RequestAccessToken()
+		var id string
+
+		row := db.QueryRowContext(ctx, `SELECT id FROM users WHERE emailAddress=?`, c.Email)
+		err := row.Scan(&id)
+		if err != nil {
+			out <- errors.Wrap(err, errors.INTERNAL, "Could not ensure that user exists")
+			return
+		}
+
+		u := repository.Get(uuid.MustParse(id))
+		err = u.RequestAccessToken()
 		if err != nil {
 			out <- errors.Wrap(err, errors.INTERNAL, "Error when requesting access token")
 			return
@@ -138,6 +160,7 @@ func OnChangeEmailAddress(repository Repository, db *sql.DB) commandbus.CommandH
 
 // RegisterWithEmail command
 type RegisterWithEmail struct {
+	Name  string `json:"name"`
 	Email string `json:"email"`
 }
 
@@ -174,7 +197,7 @@ func OnRegisterWithEmail(repository Repository, db *sql.DB) commandbus.CommandHa
 		}
 
 		u := New()
-		err = u.RegisterWithEmail(id, c.Email)
+		err = u.RegisterWithEmail(id, c.Name, c.Email)
 		if err != nil {
 			out <- errors.Wrap(err, errors.INTERNAL, "Error when registering new user")
 			return
@@ -186,120 +209,51 @@ func OnRegisterWithEmail(repository Repository, db *sql.DB) commandbus.CommandHa
 	return commandbus.CommandHandler(fn)
 }
 
-// RegisterWithFacebook command
-type RegisterWithFacebook struct {
-	Email      string `json:"email"`
-	FacebookID string `json:"facebookId"`
+// RegisterWithProvider creates command handler
+type RegisterWithProvider struct {
+	ID           uuid.UUID `json:"id"`
+	Provider     string    `json:"provider"`
+	Name         string    `json:"name"`
+	Email        string    `json:"email"`
+	NickName     string    `json:"nickName"`
+	Location     string    `json:"location"`
+	AvatarURL    string    `json:"avatarURL"`
+	Description  string    `json:"description"`
+	UserID       string    `json:"userId"`
+	RefreshToken string    `json:"refreshToken"`
 }
 
 // GetName returns command name
-func (c RegisterWithFacebook) GetName() string {
+func (c RegisterWithProvider) GetName() string {
 	return fmt.Sprintf("%T", c)
 }
 
-// OnRegisterWithFacebook creates command handler
-func OnRegisterWithFacebook(repository Repository, db *sql.DB) commandbus.CommandHandler {
-	fn := func(ctx context.Context, c RegisterWithFacebook, out chan<- error) {
+// OnRegisterWithProvider creates command handler
+func OnRegisterWithProvider(repository Repository, db *sql.DB) commandbus.CommandHandler {
+	fn := func(ctx context.Context, c RegisterWithProvider, out chan<- error) {
 		// this goroutine runs independently to request's goroutine,
 		// therefor recover middlewears will not recover from panic to prevent crash
 		defer recoverCommandHandler(out)
 
-		var id, emailAddress, facebookID string
+		var totalUsers int32
 
-		row := db.QueryRowContext(ctx, `SELECT id, emailAddress, facebookId FROM users WHERE emailAddress = ? OR facebookId = ?`, c.Email, c.FacebookID)
-		err := row.Scan(&id, &emailAddress, &facebookID)
+		row := db.QueryRowContext(ctx, `SELECT COUNT(distinctId) FROM users WHERE emailAddress = ?`, c.Email)
+		err := row.Scan(&totalUsers)
 		if err != nil {
 			out <- errors.Wrap(err, errors.INTERNAL, "Could not ensure that user is not already registered")
 			return
 		}
 
-		if facebookID == c.FacebookID {
-			out <- errors.Wrap(err, errors.INVALID, "User facebook account already connected")
+		if totalUsers != 0 {
+			out <- errors.Wrap(err, errors.INVALID, "User with given email already registered")
 			return
 		}
 
-		var u User
-		if emailAddress == c.Email {
-			u = repository.Get(uuid.MustParse(id))
-			err = u.ConnectWithFacebook(c.FacebookID)
-			if err != nil {
-				out <- errors.Wrap(err, errors.INTERNAL, "Error when trying to connect facebook account")
-				return
-			}
-		} else {
-			id, err := uuid.NewRandom()
-			if err != nil {
-				out <- errors.Wrap(err, errors.INTERNAL, "Could not generate new id")
-				return
-			}
-
-			u = New()
-			err = u.RegisterWithFacebook(id, c.Email, c.FacebookID)
-			if err != nil {
-				out <- errors.Wrap(err, errors.INTERNAL, "Error when registering new user")
-				return
-			}
-		}
-
-		out <- repository.Save(executioncontext.WithFlag(context.Background(), executioncontext.LIVE), u)
-	}
-
-	return commandbus.CommandHandler(fn)
-}
-
-// RegisterWithGoogle command
-type RegisterWithGoogle struct {
-	Email    string `json:"email"`
-	GoogleID string `json:"googleId"`
-}
-
-// GetName returns command name
-func (c RegisterWithGoogle) GetName() string {
-	return fmt.Sprintf("%T", c)
-}
-
-// OnRegisterWithGoogle creates command handler
-func OnRegisterWithGoogle(repository Repository, db *sql.DB) commandbus.CommandHandler {
-	fn := func(ctx context.Context, c RegisterWithGoogle, out chan<- error) {
-		// this goroutine runs independently to request's goroutine,
-		// therefor recover middlewears will not recover from panic to prevent crash
-		defer recoverCommandHandler(out)
-
-		var id, emailAddress, googleID string
-
-		row := db.QueryRowContext(ctx, `SELECT id, emailAddress, googleId FROM users WHERE emailAddress = ? OR googleId = ?`, c.Email, c.GoogleID)
-		err := row.Scan(&id, &emailAddress, &googleID)
+		u := New()
+		err = u.RegisterWithProvider(c.ID, c.Provider, c.Name, c.Email, c.NickName, c.Location, c.AvatarURL, c.Description, c.UserID, c.RefreshToken)
 		if err != nil {
-			out <- errors.Wrap(err, errors.INTERNAL, "Could not ensure that user is not already registered")
+			out <- errors.Wrap(err, errors.INTERNAL, "Error when registering new user")
 			return
-		}
-
-		if googleID == c.GoogleID {
-			out <- errors.Wrap(err, errors.INVALID, "User google account already connected")
-			return
-		}
-
-		var u User
-		if emailAddress == c.Email {
-			u = repository.Get(uuid.MustParse(id))
-			err = u.ConnectWithGoogle(c.GoogleID)
-			if err != nil {
-				out <- errors.Wrap(err, errors.INTERNAL, "Error when trying to connect google account")
-				return
-			}
-		} else {
-			id, err := uuid.NewRandom()
-			if err != nil {
-				out <- errors.Wrap(err, errors.INTERNAL, "Could not generate new id")
-				return
-			}
-
-			u = New()
-			err = u.RegisterWithGoogle(id, c.Email, c.GoogleID)
-			if err != nil {
-				out <- errors.Wrap(err, errors.INTERNAL, "Error when registering new user")
-				return
-			}
 		}
 
 		out <- repository.Save(executioncontext.WithFlag(context.Background(), executioncontext.LIVE), u)

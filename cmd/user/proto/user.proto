@@ -24,9 +24,15 @@ message DispatchCommandRequest {
 // User object
 message User {
   string id = 1;
-  string email = 2;
-  string facebookId = 3;
-  string googleId = 4;
+  string provider = 2;
+  string name = 3;
+  string email = 4;
+  string nickname = 5;
+  string location = 6;
+  string avatarurl = 7;
+  string description = 8;
+  string userid = 9;
+  string refreshtoken = 10;
 }
 
 // GetUserRequest is a request data to read user

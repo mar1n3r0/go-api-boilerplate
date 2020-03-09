@@ -10,9 +10,15 @@ import (
 // User the user persistence model interface
 type User interface {
 	GetID() string
+	GetProvider() string
+	GetName() string
 	GetEmail() string
-	GetFacebookID() string
-	GetGoogleID() string
+	GetNickName() string
+	GetLocation() string
+	GetAvatarURL() string
+	GetDescription() string
+	GetUserID() string
+	GetRefreshToken() string
 }
 
 // UserRepository allows to get/save current state of user to mysql storage
@@ -23,6 +29,4 @@ type UserRepository interface {
 	Delete(ctx context.Context, id string) error
 	Count(ctx context.Context) (int32, error)
 	UpdateEmail(ctx context.Context, id, email string) error
-	UpdateFacebookID(ctx context.Context, id, facebookID string) error
-	UpdateGoogleID(ctx context.Context, id, googleID string) error
 }

@@ -2,39 +2,68 @@ package handlers
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"log"
 	"net/http"
-	"net/url"
+	"time"
 
-	"golang.org/x/oauth2"
-
+	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/gothic"
+	"github.com/vardius/go-api-boilerplate/cmd/user/internal/application/config"
 	"github.com/vardius/go-api-boilerplate/cmd/user/internal/domain/user"
 	"github.com/vardius/go-api-boilerplate/internal/commandbus"
 	"github.com/vardius/go-api-boilerplate/internal/errors"
 	"github.com/vardius/go-api-boilerplate/internal/http/response"
 )
 
-type requestBody struct {
-	Email string `json:"email"`
+// User contains the information common amongst most OAuth and OAuth2 providers.
+// All of the "raw" datafrom the provider can be found in the `RawData` field.
+type User struct {
+	ID uuid.UUID
+	goth.User
+}
+
+// UserProviderClaims Create a struct that will be encoded to a JWT.
+// We add jwt.StandardClaims as an embedded type, to provide fields like expiry time
+type UserProviderClaims struct {
+	UserID string `json:"userId"`
+	jwt.StandardClaims
 }
 
 // BuildSocialAuthHandler wraps user gRPC client with http.Handler
-func BuildSocialAuthHandler(apiURL string, cb commandbus.CommandBus, commandName, secretKey string, config oauth2.Config) http.Handler {
+func BuildSocialAuthHandler(cb commandbus.CommandBus, commandName, secretKey string) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		accessToken := r.FormValue("accessToken")
-		profileData, e := getProfile(accessToken, apiURL)
-		if e != nil {
-			response.RespondJSONError(r.Context(), w, errors.Wrap(e, errors.INVALID, "Invalid access token"))
-			return
-		}
-
-		c, err := user.NewCommandFromPayload(commandName, profileData)
+		// try to get the user without re-authenticating
+		gothUser, err := gothic.CompleteUserAuth(w, r)
 		if err != nil {
-			response.RespondJSONError(r.Context(), w, errors.Wrap(err, errors.INTERNAL, "Invalid request"))
+			gothic.BeginAuthHandler(w, r)
+		}
+
+		if len(gothUser.Email) == 0 {
+			response.RespondJSONError(r.Context(), w, errors.Wrap(err, errors.INTERNAL, "gothUser is empty"))
 			return
 		}
 
-		out := make(chan error, 1)
+		id, err := uuid.NewRandom()
+		if err != nil {
+			response.RespondJSONError(r.Context(), w, errors.Wrap(err, errors.INTERNAL, "Could not generate new id"))
+			return
+		}
+
+		userProfile, err := json.Marshal(User{id, gothUser})
+		if err != nil {
+			response.RespondJSONError(r.Context(), w, errors.Wrap(err, errors.INTERNAL, "Could not json marshal userProfile"))
+			return
+		}
+
+		c, err := user.NewCommandFromPayload(commandName, userProfile)
+		if err != nil {
+			response.RespondJSONError(r.Context(), w, errors.Wrap(err, errors.INTERNAL, "Invalid command request"))
+			return
+		}
+
+		out := make(chan error, 2)
 		defer close(out)
 
 		go func() {
@@ -52,36 +81,33 @@ func BuildSocialAuthHandler(apiURL string, cb commandbus.CommandBus, commandName
 			}
 		}
 
-		emailData := requestBody{}
-		e = json.Unmarshal(profileData, &emailData)
-		if e != nil {
-			response.RespondJSONError(r.Context(), w, errors.Wrap(e, errors.INTERNAL, "Generate token failure, could not parse body"))
-			return
+		// Declare the expiration time of the token
+		// here, we have kept it as 5 minutes
+		expirationTime := time.Now().Add(5 * time.Minute)
+		// Create the JWT claims, which includes the username and expiry time
+		claims := &UserProviderClaims{
+			UserID: id.String(),
+			StandardClaims: jwt.StandardClaims{
+				// In JWT, the expiry time is expressed as unix milliseconds
+				ExpiresAt: expirationTime.Unix(),
+			},
 		}
 
-		token, err := config.PasswordCredentialsToken(r.Context(), emailData.Email, secretKey)
+		var jwtKey = []byte(secretKey)
+
+		// Declare the token with the algorithm used for signing, and the claims
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		// Create the JWT string
+		tokenString, err := token.SignedString(jwtKey)
 		if err != nil {
-			response.RespondJSONError(r.Context(), w, errors.Wrap(err, errors.INTERNAL, "Generate token failure"))
+			// If there is an error in creating the JWT return an internal server error
+			log.Printf("[EventHandler] Error: %v\n", err)
 			return
 		}
-
-		response.RespondJSON(r.Context(), w, token, http.StatusOK)
+		magicLink := config.Env.App.AuthRedirectURL + tokenString
+		// @TODO: send token with an email as magic link
+		response.RespondJSON(r.Context(), w, magicLink, http.StatusOK)
 	}
 
 	return http.HandlerFunc(fn)
-}
-
-func getProfile(accessToken, apiURL string) ([]byte, error) {
-	resp, e := http.Get(apiURL + "?access_token=" + url.QueryEscape(accessToken))
-	if e != nil {
-		return nil, e
-	}
-
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return body, errors.Wrap(err, errors.INTERNAL, "Read body error")
-	}
-
-	return body, nil
 }

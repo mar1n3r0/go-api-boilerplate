@@ -16,9 +16,20 @@ type environment struct {
 		Environment     string        `env:"APP_ENV"              envDefault:"development"`
 		ShutdownTimeout time.Duration `env:"APP_SHUTDOWN_TIMEOUT" envDefault:"5s"`
 		Secret          string        `env:"APP_SECRET"           envDefault:"secret"`
+		AuthRedirectURL string        `env:"APP_AUTH_REDIRECTURL" envDefault:"https://go-api-boilerplate.me/users/v1/me?authToken="`
 
 		ClientID     string `env:"USER_CLIENT_ID"     envDefault:"clientId"`
 		ClientSecret string `env:"USER_CLIENT_SECRET" envDefault:"clientSecret"`
+	}
+	Facebook struct {
+		ClientID     string `env:"FACEBOOK_CLIENT_ID"     envDefault:"facebookClientId"`
+		ClientSecret string `env:"FACEBOOK_CLIENT_SECRET" envDefault:"facebookClientSecret"`
+		RedirectURL  string `env:"FACEBOOK_REDIRECT_URI"  envDefault:"https://localhost/users/v1/auth?provider=facebook"`
+	}
+	Google struct {
+		ClientID     string `env:"GOOGLE_CLIENT_ID"     envDefault:"googleClientId"`
+		ClientSecret string `env:"GOOGLE_CLIENT_SECRET" envDefault:"googleClientSecret"`
+		RedirectURL  string `env:"GOOGLE_REDIRECT_URI"  envDefault:"https://go-api-boilerplate.me/users/v1/auth/callback?provider=google"`
 	}
 	Debug struct {
 		Host string `env:"DEBUG_HOST" envDefault:"0.0.0.0"`
@@ -54,6 +65,11 @@ type environment struct {
 		MaxIdleConns    int           `env:"MYSQL_MAX_IDLE_CONNS" envDefault:"0"`     // sets the maximum number of connections in the idle
 		MaxOpenConns    int           `env:"MYSQL_MAX_OPEN_CONNS" envDefault:"5"`     // sets the maximum number of connections in the idle
 	}
+	User struct {
+		Host         string `env:"USER_HOST"          envDefault:"0.0.0.0"`
+		ClientID     string `env:"USER_CLIENT_ID"     envDefault:"clientId"`
+		ClientSecret string `env:"USER_CLIENT_SECRET" envDefault:"clientSecret"`
+	}
 	Auth struct {
 		Host string `env:"AUTH_HOST" envDefault:"0.0.0.0"` // Auth service host
 	}
@@ -70,6 +86,12 @@ func init() {
 	Env = &environment{}
 
 	if err := env.Parse(&Env.App); err != nil {
+		panic(err)
+	}
+	if err := env.Parse(&Env.Facebook); err != nil {
+		panic(err)
+	}
+	if err := env.Parse(&Env.Google); err != nil {
 		panic(err)
 	}
 	if err := env.Parse(&Env.Debug); err != nil {
