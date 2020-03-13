@@ -10,12 +10,12 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/commandbus"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/errors"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/log"
 	"github.com/vardius/go-api-boilerplate/cmd/user/internal/domain/user"
 	"github.com/vardius/go-api-boilerplate/cmd/user/internal/infrastructure/persistence"
 	"github.com/vardius/go-api-boilerplate/cmd/user/proto"
-	"github.com/vardius/go-api-boilerplate/pkg/commandbus"
-	"github.com/vardius/go-api-boilerplate/pkg/errors"
-	"github.com/vardius/go-api-boilerplate/pkg/log"
 )
 
 type userServer struct {

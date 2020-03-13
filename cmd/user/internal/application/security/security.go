@@ -7,10 +7,10 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/errors"
+	http_authenticator "github.com/mar1n3r0/go-api-boilerplate/pkg/http/middleware/authenticator"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/identity"
 	user_persistence "github.com/vardius/go-api-boilerplate/cmd/user/internal/infrastructure/persistence"
-	"github.com/vardius/go-api-boilerplate/pkg/errors"
-	http_authenticator "github.com/vardius/go-api-boilerplate/pkg/http/middleware/authenticator"
-	"github.com/vardius/go-api-boilerplate/pkg/identity"
 )
 
 // InternalCustomClaims used for internal registration only

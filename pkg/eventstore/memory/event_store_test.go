@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/vardius/go-api-boilerplate/pkg/domain"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/domain"
 )
 
 type rawEventMock struct {

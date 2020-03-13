@@ -7,8 +7,8 @@ import (
 	"github.com/vardius/golog"
 	"github.com/vardius/pubsub/proto"
 
-	"github.com/vardius/go-api-boilerplate/pkg/domain"
-	"github.com/vardius/go-api-boilerplate/pkg/errors"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/domain"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/errors"
 )
 
 // EventHandler function

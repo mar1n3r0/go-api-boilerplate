@@ -11,9 +11,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/google/uuid"
 
-	"github.com/vardius/go-api-boilerplate/pkg/domain"
-	"github.com/vardius/go-api-boilerplate/pkg/errors"
-	baseeventstore "github.com/vardius/go-api-boilerplate/pkg/eventstore"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/domain"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/errors"
+	baseeventstore "github.com/mar1n3r0/go-api-boilerplate/pkg/eventstore"
 )
 
 type eventStore struct {

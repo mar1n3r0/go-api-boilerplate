@@ -9,8 +9,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/vardius/go-api-boilerplate/pkg/errors"
-	"github.com/vardius/go-api-boilerplate/pkg/http/middleware/metadata"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/errors"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/http/middleware/metadata"
 )
 
 // RespondJSON returns data as json response
