@@ -8,6 +8,11 @@ import (
 	"github.com/vardius/gorouter/v4"
 	"google.golang.org/grpc"
 
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/user/internal/application/config"
+	user_security "github.com/mar1n3r0/go-api-boilerplate/cmd/user/internal/application/security"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/user/internal/domain/user"
+	user_persistence "github.com/mar1n3r0/go-api-boilerplate/cmd/user/internal/infrastructure/persistence"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/user/internal/interfaces/http/handlers"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/commandbus"
 	http_middleware "github.com/mar1n3r0/go-api-boilerplate/pkg/http/middleware"
 	http_authenticator "github.com/mar1n3r0/go-api-boilerplate/pkg/http/middleware/authenticator"
@@ -15,11 +20,6 @@ import (
 	http_metadata_middleware "github.com/mar1n3r0/go-api-boilerplate/pkg/http/middleware/metadata"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/log"
 	http_form_middleware "github.com/mar1n3r0/gorouter-middleware-formjson"
-	"github.com/vardius/go-api-boilerplate/cmd/user/internal/application/config"
-	user_security "github.com/vardius/go-api-boilerplate/cmd/user/internal/application/security"
-	"github.com/vardius/go-api-boilerplate/cmd/user/internal/domain/user"
-	user_persistence "github.com/vardius/go-api-boilerplate/cmd/user/internal/infrastructure/persistence"
-	"github.com/vardius/go-api-boilerplate/cmd/user/internal/interfaces/http/handlers"
 )
 
 // NewRouter provides new router

@@ -8,10 +8,10 @@ import (
 	"gopkg.in/oauth2.v3"
 	oauth2_models "gopkg.in/oauth2.v3/models"
 
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/domain/token"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/infrastructure/persistence"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/commandbus"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/errors"
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/domain/token"
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/infrastructure/persistence"
 )
 
 // NewTokenStore create a token store instance

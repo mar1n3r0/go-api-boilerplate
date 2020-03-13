@@ -7,9 +7,9 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/infrastructure/persistence"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/errors"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/mysql"
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/infrastructure/persistence"
 )
 
 // NewTokenRepository returns mysql view model repository for token

@@ -11,6 +11,15 @@ import (
 	grpc_health "google.golang.org/grpc/health"
 	oauth2_models "gopkg.in/oauth2.v3/models"
 
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/application/config"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/application/eventhandler"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/application/oauth2"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/domain/client"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/domain/token"
+	persistence "github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/infrastructure/persistence/mysql"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/infrastructure/repository"
+	auth_grpc "github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/interfaces/grpc"
+	auth_http "github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/interfaces/http"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/application"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/buildinfo"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/commandbus"
@@ -19,15 +28,6 @@ import (
 	grpc_utils "github.com/mar1n3r0/go-api-boilerplate/pkg/grpc"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/log"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/mysql"
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/application/config"
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/application/eventhandler"
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/application/oauth2"
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/domain/client"
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/domain/token"
-	persistence "github.com/vardius/go-api-boilerplate/cmd/auth/internal/infrastructure/persistence/mysql"
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/infrastructure/repository"
-	auth_grpc "github.com/vardius/go-api-boilerplate/cmd/auth/internal/interfaces/grpc"
-	auth_http "github.com/vardius/go-api-boilerplate/cmd/auth/internal/interfaces/http"
 )
 
 func main() {

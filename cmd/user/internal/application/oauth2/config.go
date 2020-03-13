@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/oauth2"
 
-	"github.com/vardius/go-api-boilerplate/cmd/user/internal/application/config"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/user/internal/application/config"
 )
 
 // NewConfig provides oauth2 config

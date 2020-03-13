@@ -13,9 +13,9 @@ import (
 	"gopkg.in/oauth2.v3/generates"
 	"gopkg.in/oauth2.v3/server"
 
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/proto"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/errors"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/log"
-	"github.com/vardius/go-api-boilerplate/cmd/auth/proto"
 )
 
 type authenticationServer struct {

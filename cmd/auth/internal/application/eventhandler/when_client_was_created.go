@@ -6,10 +6,10 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/domain/client"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/infrastructure/persistence"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/domain"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/eventbus"
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/domain/client"
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/infrastructure/persistence"
 )
 
 // WhenClientWasCreated handles event

@@ -8,10 +8,10 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/domain/token"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/errors"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/eventbus"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/eventstore"
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/domain/token"
 )
 
 type tokenRepository struct {

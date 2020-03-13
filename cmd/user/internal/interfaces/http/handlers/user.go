@@ -8,12 +8,12 @@ import (
 
 	"github.com/vardius/gorouter/v4/context"
 
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/user/internal/domain/user"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/user/internal/infrastructure/persistence"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/commandbus"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/errors"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/http/response"
 	"github.com/mar1n3r0/go-api-boilerplate/pkg/identity"
-	"github.com/vardius/go-api-boilerplate/cmd/user/internal/domain/user"
-	"github.com/vardius/go-api-boilerplate/cmd/user/internal/infrastructure/persistence"
 )
 
 // BuildCommandDispatchHandler wraps user gRPC client with http.Handler
