@@ -1,4 +1,4 @@
-module github.com/vardius/go-api-boilerplate
+module github.com/mar1n3r0/go-api-boilerplate
 
 go 1.13
 
