@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/vardius/go-api-boilerplate/pkg/errors"
-	"github.com/vardius/go-api-boilerplate/pkg/http/response"
-	"github.com/vardius/go-api-boilerplate/pkg/identity"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/errors"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/http/response"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/identity"
 )
 
 // TokenAuthFunc returns Identity from token

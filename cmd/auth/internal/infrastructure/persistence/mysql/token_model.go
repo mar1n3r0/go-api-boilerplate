@@ -6,7 +6,7 @@ package mysql
 import (
 	"encoding/json"
 
-	"github.com/vardius/go-api-boilerplate/pkg/mysql"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/mysql"
 )
 
 // Token model

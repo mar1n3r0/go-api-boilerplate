@@ -7,9 +7,9 @@ import (
 	"github.com/vardius/gollback"
 	"google.golang.org/grpc"
 
-	"github.com/vardius/go-api-boilerplate/pkg/errors"
-	"github.com/vardius/go-api-boilerplate/pkg/eventbus"
-	grpc_utils "github.com/vardius/go-api-boilerplate/pkg/grpc"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/errors"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/eventbus"
+	grpc_utils "github.com/mar1n3r0/go-api-boilerplate/pkg/grpc"
 )
 
 // Register registers event handlers for topics

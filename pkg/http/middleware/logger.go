@@ -7,7 +7,7 @@ import (
 	"github.com/vardius/golog"
 	"github.com/vardius/gorouter/v4"
 
-	"github.com/vardius/go-api-boilerplate/pkg/http/middleware/metadata"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/http/middleware/metadata"
 )
 
 // Logger wraps http.Handler with a logger middleware

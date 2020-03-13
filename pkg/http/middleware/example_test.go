@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/vardius/go-api-boilerplate/pkg/http/middleware"
-	"github.com/vardius/go-api-boilerplate/pkg/log"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/http/middleware"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/log"
 )
 
 func ExampleRecover() {

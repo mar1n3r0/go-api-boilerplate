@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/vardius/go-api-boilerplate/pkg/identity"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/identity"
 )
 
 var (

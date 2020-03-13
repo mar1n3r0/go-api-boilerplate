@@ -6,7 +6,7 @@ import (
 	"github.com/vardius/golog"
 	messagebus "github.com/vardius/message-bus"
 
-	"github.com/vardius/go-api-boilerplate/pkg/domain"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/domain"
 )
 
 // CommandHandler function
