@@ -24,6 +24,7 @@ func TestUnmarshalRegisterWithEmail(t *testing.T) {
 
 func TestUnmarshalRegisterWithEmailForm(t *testing.T) {
 	form := url.Values{}
+	form.Set("name", "test")
 	form.Set("email", "test@test.com")
 	testForm := map[string]interface{}{}
 
@@ -37,7 +38,7 @@ func TestUnmarshalRegisterWithEmailForm(t *testing.T) {
 }
 
 func TestUnmarshalRegisterWithProvider(t *testing.T) {
-	testJSON := []byte(`{"provider":"facebook","name":"test test","email":"test@test.com","nickName":"test","location":"test","avatarURL":"test.png","description":"test description","userId":"test123","refreshToken":"testxxx"}`)
+	testJSON := []byte(`{"id":"00000000-0000-0000-0000-000000000000","provider":"facebook","name":"test test","email":"test@test.com","nickName":"test","location":"test","avatarURL":"test.png","description":"test description","userId":"test123","refreshToken":"testxxx"}`)
 
 	testUnmarshalCommand(t, testJSON, &RegisterWithProvider{})
 }
