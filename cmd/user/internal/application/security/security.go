@@ -8,9 +8,9 @@ import (
 	"github.com/google/uuid"
 
 	user_persistence "github.com/vardius/go-api-boilerplate/cmd/user/internal/infrastructure/persistence"
-	"github.com/vardius/go-api-boilerplate/internal/errors"
-	http_authenticator "github.com/vardius/go-api-boilerplate/internal/http/middleware/authenticator"
-	"github.com/vardius/go-api-boilerplate/internal/identity"
+	"github.com/vardius/go-api-boilerplate/pkg/errors"
+	http_authenticator "github.com/vardius/go-api-boilerplate/pkg/http/middleware/authenticator"
+	"github.com/vardius/go-api-boilerplate/pkg/identity"
 )
 
 // InternalCustomClaims used for internal registration only

@@ -11,8 +11,8 @@ import (
 	"github.com/vardius/go-api-boilerplate/cmd/user/internal/application/config"
 	"github.com/vardius/go-api-boilerplate/cmd/user/internal/domain/user"
 	"github.com/vardius/go-api-boilerplate/cmd/user/internal/infrastructure/persistence"
-	"github.com/vardius/go-api-boilerplate/internal/domain"
-	"github.com/vardius/go-api-boilerplate/internal/eventbus"
+	"github.com/vardius/go-api-boilerplate/pkg/domain"
+	"github.com/vardius/go-api-boilerplate/pkg/eventbus"
 )
 
 // Claims Create a struct that will be encoded to a JWT.
