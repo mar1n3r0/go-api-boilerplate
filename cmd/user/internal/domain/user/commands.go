@@ -160,8 +160,8 @@ func OnChangeEmailAddress(repository Repository, db *sql.DB) commandbus.CommandH
 
 // RegisterWithEmail command
 type RegisterWithEmail struct {
-	Name  string `json:"name"`
 	Email string `json:"email"`
+	Name  string `json:"name"`
 }
 
 // GetName returns command name
