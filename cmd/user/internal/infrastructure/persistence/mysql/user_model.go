@@ -3,7 +3,7 @@ Package mysql holds view model repositories
 */
 package mysql
 
-import "github.com/vardius/go-api-boilerplate/internal/mysql"
+import "github.com/mar1n3r0/go-api-boilerplate/pkg/mysql"
 
 // User model
 type User struct {

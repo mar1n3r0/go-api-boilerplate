@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/application/config"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/application/config"
 )
 
 // Adapter is http server app adapter

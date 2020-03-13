@@ -6,10 +6,10 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/domain/token"
-	"github.com/vardius/go-api-boilerplate/cmd/auth/internal/infrastructure/persistence"
-	"github.com/vardius/go-api-boilerplate/internal/domain"
-	"github.com/vardius/go-api-boilerplate/internal/eventbus"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/domain/token"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/auth/internal/infrastructure/persistence"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/domain"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/eventbus"
 )
 
 // WhenTokenWasRemoved handles event

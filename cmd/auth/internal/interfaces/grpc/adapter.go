@@ -8,7 +8,7 @@ import (
 	grpc_health "google.golang.org/grpc/health"
 	grpc_health_proto "google.golang.org/grpc/health/grpc_health_v1"
 
-	auth_proto "github.com/vardius/go-api-boilerplate/cmd/auth/proto"
+	auth_proto "github.com/mar1n3r0/go-api-boilerplate/cmd/auth/proto"
 )
 
 // Adapter is grpc server app adapter

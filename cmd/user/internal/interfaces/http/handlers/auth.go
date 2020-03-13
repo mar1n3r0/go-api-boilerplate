@@ -8,13 +8,13 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/user/internal/application/config"
+	"github.com/mar1n3r0/go-api-boilerplate/cmd/user/internal/domain/user"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/commandbus"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/errors"
+	"github.com/mar1n3r0/go-api-boilerplate/pkg/http/response"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
-	"github.com/vardius/go-api-boilerplate/cmd/user/internal/application/config"
-	"github.com/vardius/go-api-boilerplate/cmd/user/internal/domain/user"
-	"github.com/vardius/go-api-boilerplate/internal/commandbus"
-	"github.com/vardius/go-api-boilerplate/internal/errors"
-	"github.com/vardius/go-api-boilerplate/internal/http/response"
 )
 
 // User contains the information common amongst most OAuth and OAuth2 providers.
