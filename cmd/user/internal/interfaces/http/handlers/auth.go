@@ -12,9 +12,9 @@ import (
 	"github.com/markbates/goth/gothic"
 	"github.com/vardius/go-api-boilerplate/cmd/user/internal/application/config"
 	"github.com/vardius/go-api-boilerplate/cmd/user/internal/domain/user"
-	"github.com/vardius/go-api-boilerplate/internal/commandbus"
-	"github.com/vardius/go-api-boilerplate/internal/errors"
-	"github.com/vardius/go-api-boilerplate/internal/http/response"
+	"github.com/vardius/go-api-boilerplate/pkg/commandbus"
+	"github.com/vardius/go-api-boilerplate/pkg/errors"
+	"github.com/vardius/go-api-boilerplate/pkg/http/response"
 )
 
 // User contains the information common amongst most OAuth and OAuth2 providers.
