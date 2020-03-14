@@ -1,7 +1,7 @@
 # First stage: build the executable.
 FROM golang:1.14-alpine AS buildenv
 
-LABEL maintainer="Rafał Lorenz <vardius@gmail.com>"
+LABEL maintainer="Marin Kirkov <m.kirkov@gmail.com>"
 
 # Install git + SSL ca certificates.
 # Git is required for fetching the dependencies.
