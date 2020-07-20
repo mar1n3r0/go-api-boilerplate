@@ -1,6 +1,7 @@
 package authenticator
 
 import (
+	"encoding/base64"
 	"net/http"
 	"strings"
 
@@ -10,7 +11,7 @@ import (
 )
 
 // TokenAuthFunc returns Identity from token
-type TokenAuthFunc func(apiKey, token string) (identity.Identity, error)
+type TokenAuthFunc func(token string) (identity.Identity, error)
 
 // TokenAuthenticator authorize by token
 // and adds Identity to request's Context
@@ -23,10 +24,6 @@ type TokenAuthenticator interface {
 	FromCookie(name string) func(next http.Handler) http.Handler
 }
 
-const (
-	appKey = "secret"
-)
-
 type tokenAuth struct {
 	afn TokenAuthFunc
 }
@@ -34,17 +31,6 @@ type tokenAuth struct {
 func (a *tokenAuth) FromHeader(realm string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			apiKey := r.Header.Get("X-Api-Key")
-			if apiKey == "" {
-				next.ServeHTTP(w, r)
-				return
-			}
-
-			if apiKey != appKey {
-				response.RespondJSONError(r.Context(), w, errors.New(errors.UNAUTHORIZED, http.StatusText(http.StatusUnauthorized)))
-				return
-			}
-
 			token := r.Header.Get("Authorization")
 			if token == "" {
 				next.ServeHTTP(w, r)
@@ -52,17 +38,17 @@ func (a *tokenAuth) FromHeader(realm string) func(next http.Handler) http.Handle
 			}
 
 			if strings.HasPrefix(token, "Bearer ") {
-				//if bearer, err := base64.StdEncoding.DecodeString(token[7:]); err == nil {
-				i, err := a.afn(apiKey, string(token[7:]))
-				if err != nil {
-					w.Header().Set("WWW-Authenticate", `Bearer realm="`+realm+`"`)
-					response.RespondJSONError(r.Context(), w, errors.New(errors.UNAUTHORIZED, http.StatusText(http.StatusUnauthorized)))
+				if bearer, err := base64.StdEncoding.DecodeString(token[7:]); err == nil {
+					i, err := a.afn(string(bearer))
+					if err != nil {
+						w.Header().Set("WWW-Authenticate", `Bearer realm="`+realm+`"`)
+						response.RespondJSONError(r.Context(), w, errors.New(errors.UNAUTHORIZED, http.StatusText(http.StatusUnauthorized)))
+						return
+					}
+
+					next.ServeHTTP(w, r.WithContext(identity.ContextWithIdentity(r.Context(), i)))
 					return
 				}
-
-				next.ServeHTTP(w, r.WithContext(identity.ContextWithIdentity(r.Context(), i)))
-				return
-				//}
 			}
 
 			w.Header().Set("WWW-Authenticate", `Bearer realm="`+realm+`"`)
@@ -76,24 +62,13 @@ func (a *tokenAuth) FromHeader(realm string) func(next http.Handler) http.Handle
 func (a *tokenAuth) FromQuery(name string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			apiKey := r.URL.Query().Get("apiKey")
-			if apiKey == "" {
-				next.ServeHTTP(w, r)
-				return
-			}
-
-			if apiKey != appKey {
-				response.RespondJSONError(r.Context(), w, errors.New(errors.UNAUTHORIZED, http.StatusText(http.StatusUnauthorized)))
-				return
-			}
-
 			token := r.URL.Query().Get(name)
 			if token == "" {
 				next.ServeHTTP(w, r)
 				return
 			}
 
-			i, err := a.afn(apiKey, token)
+			i, err := a.afn(token)
 			if err != nil {
 				response.RespondJSONError(r.Context(), w, errors.New(errors.UNAUTHORIZED, http.StatusText(http.StatusUnauthorized)))
 				return
@@ -115,14 +90,9 @@ func (a *tokenAuth) FromCookie(name string) func(next http.Handler) http.Handler
 				return
 			}
 
-			cookieValues := strings.Split(cookie.Value, "&")
-
-			apiKey := cookieValues[0]
-			token := cookieValues[1]
-
-			i, err := a.afn(apiKey, token)
+			i, err := a.afn(cookie.Value)
 			if err != nil {
-				response.RespondJSONError(r.Context(), w, errors.New(errors.UNAUTHORIZED, errors.ErrorMessage(err)))
+				response.RespondJSONError(r.Context(), w, errors.New(errors.UNAUTHORIZED, http.StatusText(http.StatusUnauthorized)))
 				return
 			}
 
